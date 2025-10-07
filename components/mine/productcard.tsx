@@ -1,18 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, {useState} from "react";
 import Image from "next/image";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { type Product } from "@/lib/dummy_data";
+import {Card, CardContent, CardFooter, CardHeader} from "@/components/ui/card";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {type Product} from "@/lib/dummy_data";
 
 interface ProductCardProps {
     product: Product;
     onAdd?: (p: Product, qty: number) => void;
 }
 
-export default function ProductCard({ product, onAdd }: ProductCardProps) {
+export default function ProductCard({product, onAdd}: ProductCardProps) {
     const [qty, setQty] = useState<number>(1);
     const add = () => onAdd?.(product, qty);
 
