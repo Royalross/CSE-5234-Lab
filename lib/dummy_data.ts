@@ -34,7 +34,7 @@ export const products: Product[] = [
         title: "Invisibility Cloak v2",
         subtitle: "Lightweight. Pocket-safe.",
         price: 1299,
-        imageSrc: "/placeholder.svg?height=800&width=800",
+        imageSrc: "/the-invisibility-cloak.png",
         imageAlt: "Invisibility cloak",
         purchasedCount: 520,
     },

@@ -25,7 +25,7 @@ export default function Navbar() {
                 </NavigationMenu>
 
                 <div className="flex items-center space-x-4">
-                    <Link href="/cart" className="hover:underline">
+                    <Link href="/purchase/viewOrder" className="hover:underline">
                         Cart
                     </Link>
                     <Link href="/profile" className="hover:underline">

@@ -19,13 +19,13 @@ export default function ProductCard({product, onAdd}: ProductCardProps) {
     return (
         <Card className="h-full rounded-md flex flex-col">
             <CardHeader className="p-0">
-                <div className="w-full h-full">
+                <div className="w-full h-full round">
                     <Image
                         src={product.imageSrc}
                         alt={product.imageAlt}
                         width={500}
                         height={300}
-                        className="w-[500px] h-[300px]"
+                        className="w-[500px] h-[300px] rounded-t-[5px]"
                     />
                 </div>
             </CardHeader>
