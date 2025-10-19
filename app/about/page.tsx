@@ -48,7 +48,8 @@ export default function AboutPage() {
               alt="Craig Chen"
               width={180}
               height={180}
-              className="rounded-full mx-auto"
+              className="rounded-full mx-auto object-cover"
+              style={{ aspectRatio: "1 / 1" }}
             />
             <h3 className="mt-4 text-lg font-semibold text-card-foreground">
               Craig Chen
@@ -71,7 +72,8 @@ export default function AboutPage() {
               alt="Leo Chen"
               width={180}
               height={180}
-              className="rounded-full mx-auto"
+              className="rounded-full mx-auto object-cover"
+              style={{ aspectRatio: "1 / 1" }}
             />
             <h3 className="mt-4 text-lg font-semibold text-card-foreground">
               Leo Chen
@@ -94,7 +96,8 @@ export default function AboutPage() {
               alt="Lughan Ross"
               width={180}
               height={180}
-              className="rounded-full mx-auto"
+              className="rounded-full mx-auto object-cover"
+              style={{ aspectRatio: "1 / 1" }}
             />
             <h3 className="mt-4 text-lg font-semibold text-card-foreground">
               Lughan Ross
@@ -118,7 +121,8 @@ export default function AboutPage() {
               alt="Regis Chen"
               width={180}
               height={180}
-              className="rounded-full mx-auto"
+              className="rounded-full mx-auto object-cover"
+              style={{ aspectRatio: "1 / 1" }}
             />
             <h3 className="mt-4 text-lg font-semibold text-card-foreground">
               Regis Chen
