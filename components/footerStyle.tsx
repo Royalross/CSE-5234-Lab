@@ -1,5 +1,5 @@
 // components/Footer.tsx
-export default function footer() {
+export default function footerStyle() {
   return (
     <footer className="bg-gray-100 text-gray-700 py-6 mt-10 border-t">
       <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
