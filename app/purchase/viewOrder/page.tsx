@@ -38,7 +38,6 @@ export default function ViewOrder() {
 
   // ---------------- Hardcoded data ----------------
   useEffect(() => {
-    // items
     const mockCart: Item[] = [
       {
         id: 1,
@@ -71,7 +70,7 @@ export default function ViewOrder() {
         (sum, item) => sum + item.price * item.quantity,
         0
       );
-      const taxValue = subtotalValue * 0.08; // 8% Tax
+      const taxValue = subtotalValue * 0.08;
       const totalValue = subtotalValue + taxValue;
 
       setSubtotal(subtotalValue);
@@ -83,8 +82,6 @@ export default function ViewOrder() {
   // ---------------- save for lab6----------------
   async function saveOrderToDB() {
     try {
-      // const payload = { cartItems, paymentInfo, shippingInfo, subtotal, tax, totalCost };
-      // await axios.post("/api/orders", payload);
       console.log("saveOrderToDB called:", {
         cartItems,
         paymentInfo,
@@ -110,7 +107,7 @@ export default function ViewOrder() {
         totalCost,
       })
     );
-    saveOrderToDB(); // save data to db in Lab 6
+    saveOrderToDB();
     router.push("/purchase/viewConfirmation");
   };
 
@@ -119,7 +116,7 @@ export default function ViewOrder() {
   };
 
   return (
-    <main className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-indigo-100 via-white to-blue-100">
+    <div className="flex items-center justify-center min-h-[calc(100vh-120px)] bg-gradient-to-br from-indigo-100 via-white to-blue-100">
       <div className="bg-white/90 backdrop-blur-md shadow-2xl rounded-2xl p-8 w-full max-w-md border border-blue-100 scale-95">
         <h1 className="text-2xl font-bold text-center mb-6 text-blue-700">
           Order Summary
@@ -147,9 +144,7 @@ export default function ViewOrder() {
           {paymentInfo ? (
             <p className="text-sm text-gray-700 mt-1">
               Card Holder: {paymentInfo.cardHolder} <br />
-              Card Number: **** **** **** {paymentInfo.cardNumber.slice(
-                -4
-              )}{" "}
+              Card Number: **** **** **** {paymentInfo.cardNumber.slice(-4)}{" "}
               <br />
               Expiry: {paymentInfo.expiry}
             </p>
@@ -191,9 +186,6 @@ export default function ViewOrder() {
         </div>
 
         {/* buttons */}
-        {/* BACK BUTTON WILL RETURN TO http://localhost:3000/purchase/shippingEntry */}
-        {/* Confir BUTTON WILL RETURN TO SHIPPING http://localhost:3000/purchase/viewConfirmation */}
-
         <div className="flex gap-4">
           <button
             onClick={handleBack}
@@ -210,6 +202,6 @@ export default function ViewOrder() {
           </button>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

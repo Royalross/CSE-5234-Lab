@@ -95,7 +95,7 @@ export default function ViewConfirmation() {
 
   // ---------------- pages ----------------
   return (
-    <main className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-green-100 via-white to-blue-100">
+    <div className="flex items-center justify-center min-h-[calc(100vh-120px)] bg-gradient-to-br from-green-100 via-white to-blue-100">
       <div className="bg-white/90 backdrop-blur-md shadow-2xl rounded-2xl p-8 w-full max-w-md border border-green-100 scale-95">
         <h1 className="text-2xl font-bold text-center mb-4 text-green-700">
           🎉 Order Confirmed!
@@ -185,6 +185,6 @@ export default function ViewConfirmation() {
           Return to Home
         </button>
       </div>
-    </main>
+    </div>
   );
 }

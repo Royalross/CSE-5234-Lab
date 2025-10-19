@@ -29,7 +29,7 @@ export default function PaymentEntry() {
   };
 
   return (
-    <main className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-indigo-100 via-white to-blue-100">
+    <div className="flex items-center justify-center min-h-[calc(100vh-120px)] bg-gradient-to-br from-indigo-100 via-white to-blue-100">
       <div className="bg-white/90 backdrop-blur-md shadow-2xl rounded-2xl p-8 w-full max-w-md border border-blue-100 scale-95">
         <h1 className="text-2xl font-bold text-center mb-6 text-blue-700">
           Payment Information
@@ -96,6 +96,6 @@ export default function PaymentEntry() {
           Next
         </button>
       </div>
-    </main>
+    </div>
   );
 }
