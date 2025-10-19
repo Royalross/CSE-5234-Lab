@@ -68,7 +68,7 @@ export default function AboutPage() {
           {/* Member 2 */}
           <div className="bg-card shadow-lg rounded-xl p-6 hover:scale-105 transition-transform">
             <Image
-              src="/member2.jpg"
+              src="/leo.jpg"
               alt="Leo Chen"
               width={180}
               height={180}
@@ -92,7 +92,7 @@ export default function AboutPage() {
           {/* Member 3 */}
           <div className="bg-card shadow-lg rounded-xl p-6 hover:scale-105 transition-transform">
             <Image
-              src=""
+              src="/lughan.jpg"
               alt="Lughan Ross"
               width={180}
               height={180}
