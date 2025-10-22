@@ -23,9 +23,9 @@ export default function ProductCard({product, onAdd}: ProductCardProps) {
                     <Image
                         src={product.imageSrc}
                         alt={product.imageAlt}
-                        width={500}
+                        width={700}
                         height={300}
-                        className="w-[500px] h-[300px] rounded-t-[5px]"
+                        className="w-[700px] h-[300px] rounded-t-[5px]"
                     />
                 </div>
             </CardHeader>
