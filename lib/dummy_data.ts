@@ -5,8 +5,8 @@ export type Product = {
     title: string;
     subtitle?: string;
     price: number;
-    imageSrc: string;
-    imageAlt: string;
+    imageSrc?: string | null;
+    imageAlt?: string | null;
     purchasedCount?: number;
 };
 

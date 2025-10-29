@@ -16,16 +16,22 @@ export default function ProductCard({product, onAdd}: ProductCardProps) {
     const [qty, setQty] = useState<number>(1);
     const add = () => onAdd?.(product, qty);
 
+    const imgSrc =
+        product.imageSrc && product.imageSrc.trim() !== ""
+            ? product.imageSrc
+            : "/placeholder.png";
+    const imgAlt = product.imageAlt || product.title || "Product image";
+
     return (
         <Card className="h-full rounded-md flex flex-col">
             <CardHeader className="p-0">
-                <div className="w-full h-full round">
+                <div className="w-full h-full rounded">
                     <Image
-                        src={product.imageSrc}
-                        alt={product.imageAlt}
+                        src={imgSrc}
+                        alt={imgAlt}
                         width={700}
                         height={300}
-                        className="w-[700px] h-[300px] rounded-t-[5px]"
+                        className="w-[700px] h-[300px] rounded-t-[5px] object-cover"
                     />
                 </div>
             </CardHeader>
