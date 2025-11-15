@@ -7,9 +7,15 @@ export default function footerStyle() {
           © {new Date().getFullYear()} CSE5234 Team 8. All rights reserved
         </p>
         <div className="flex space-x-4 mt-3 md:mt-0">
-          <a href="/about" className="hover:text-blue-600">About</a>
-          <a href="/contact" className="hover:text-blue-600">Contact</a>
-          <a href="/privacy" className="hover:text-blue-600">Privacy Policy</a>
+          <a href="/about" className="hover:text-blue-600">
+            About
+          </a>
+          <a href="/contact" className="hover:text-blue-600">
+            Contact
+          </a>
+          <a href="/privacy" className="hover:text-blue-600">
+            Privacy Policy
+          </a>
         </div>
       </div>
     </footer>

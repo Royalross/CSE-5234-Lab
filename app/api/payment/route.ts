@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       `INSERT INTO payment_info (holder_name, card_num, exp_date, cvv)
        VALUES ($1, $2, $3, $4)
        RETURNING id`,
-      [body.holderName, body.cardNum, body.expDate, body.cvv]
+      [body.holderName, body.cardNum, body.expDate, body.cvv],
     );
 
     const paymentId = r.rows[0].id;
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
         paymentToken,
         status: "AUTHORIZED",
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (err) {
     console.error("[POST /api/payment] failed:", err);

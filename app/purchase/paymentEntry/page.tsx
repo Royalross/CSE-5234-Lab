@@ -36,7 +36,9 @@ export default function PaymentEntry() {
         </h1>
         <div className="space-y-4">
           <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium mb-1">Cardholder Name</label>
+            <label className="text-gray-700 text-sm font-medium mb-1">
+              Cardholder Name
+            </label>
             <input
               name="name"
               placeholder="e.g. John Doe"
@@ -47,7 +49,9 @@ export default function PaymentEntry() {
             />
           </div>
           <div className="flex flex-col relative">
-            <label className="text-gray-700 text-sm font-medium mb-1">Card Number</label>
+            <label className="text-gray-700 text-sm font-medium mb-1">
+              Card Number
+            </label>
             <input
               type={showCardNumber ? "text" : "password"}
               name="cardNumber"
@@ -66,7 +70,9 @@ export default function PaymentEntry() {
             </button>
           </div>
           <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium mb-1">Expiration Date</label>
+            <label className="text-gray-700 text-sm font-medium mb-1">
+              Expiration Date
+            </label>
             <input
               name="expiry"
               placeholder="MM/YY"
@@ -77,7 +83,9 @@ export default function PaymentEntry() {
             />
           </div>
           <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium mb-1">CVV</label>
+            <label className="text-gray-700 text-sm font-medium mb-1">
+              CVV
+            </label>
             <input
               type="password"
               name="cvv"

@@ -1,5 +1,7 @@
 import { Pool } from "pg";
 
+console.log("DATABASE_URL is", process.env.DATABASE_URL);
+
 declare global {
   // eslint-disable-next-line no-var
   var _pgPool: Pool | undefined;
@@ -9,7 +11,6 @@ export const pool =
   global._pgPool ??
   new Pool({
     connectionString: process.env.DATABASE_URL,
-    // add below if seeing SSL errors
     ssl: { rejectUnauthorized: false },
   });
 
