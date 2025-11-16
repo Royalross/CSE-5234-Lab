@@ -1,6 +1,6 @@
-export const runtime = "nodejs"; 
+export const runtime = "nodejs";
 import { NextResponse } from "next/server";
-import { pool } from "@/lib/db"; 
+import { pool } from "@/lib/db";
 
 export async function GET() {
   try {
@@ -12,7 +12,7 @@ export async function GET() {
               available_quantity AS "availableQuantity",
               unit_price AS "unitPrice"
        FROM item
-       ORDER BY id ASC;`
+       ORDER BY id ASC;`,
     );
     return NextResponse.json(rows, { status: 200 });
   } catch (err) {

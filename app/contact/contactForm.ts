@@ -36,7 +36,8 @@ export default function contactForm() {
     const next: Errors = {};
     if (!form.name.trim()) next.name = "Please enter your name.";
     if (!form.email.trim()) next.email = "Please enter your email.";
-    else if (!emailRegex.test(form.email)) next.email = "Enter a valid email address.";
+    else if (!emailRegex.test(form.email))
+      next.email = "Enter a valid email address.";
 
     if (form.phone && phoneDigits(form.phone) < 7)
       next.phone = "Enter a valid phone number (7+ digits).";

@@ -1,14 +1,14 @@
-import { pool } from '@/lib/db';
+import { pool } from "@/lib/db";
 
-export const runtime = 'nodejs';       
-export const dynamic = 'force-dynamic';
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 type Ctx = { params: { id: string } };
 
 export async function GET(_req: Request, { params }: Ctx) {
   const idNum = Number(params.id);
   if (!Number.isInteger(idNum) || idNum <= 0) {
-    return Response.json({ error: 'Invalid id' }, { status: 400 });
+    return Response.json({ error: "Invalid id" }, { status: 400 });
   }
 
   const sql = `
@@ -67,14 +67,17 @@ export async function GET(_req: Request, { params }: Ctx) {
   try {
     const { rows } = await pool.query<{ order_json: any }>(sql, [idNum]);
     if (rows.length === 0 || !rows[0].order_json) {
-      return Response.json({ error: 'Order not found' }, { status: 404 });
+      return Response.json({ error: "Order not found" }, { status: 404 });
     }
     return new Response(JSON.stringify(rows[0].order_json), {
       status: 200,
-      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+      },
     });
   } catch (err) {
-    console.error('[GET /api/order/:id]', err);
-    return Response.json({ error: 'Server error' }, { status: 500 });
+    console.error("[GET /api/order/:id]", err);
+    return Response.json({ error: "Server error" }, { status: 500 });
   }
 }

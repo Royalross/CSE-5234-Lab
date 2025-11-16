@@ -13,7 +13,6 @@
 //     if (!res.ok) throw new Error(`Fetch item ${id} failed: ${res.status}`);
 //     return res.json();
 // }
-// lib/api/inventory.ts
 
 export type InventoryItem = {
   id: number;

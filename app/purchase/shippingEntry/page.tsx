@@ -36,7 +36,9 @@ export default function ShippingEntry() {
         </h1>
         <div className="space-y-4">
           <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium mb-1">Full Name</label>
+            <label className="text-gray-700 text-sm font-medium mb-1">
+              Full Name
+            </label>
             <input
               name="name"
               placeholder="e.g. John Doe"
@@ -47,7 +49,9 @@ export default function ShippingEntry() {
             />
           </div>
           <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium mb-1">Address Line 1</label>
+            <label className="text-gray-700 text-sm font-medium mb-1">
+              Address Line 1
+            </label>
             <input
               name="address1"
               placeholder="Street address, P.O. box"
@@ -58,7 +62,9 @@ export default function ShippingEntry() {
             />
           </div>
           <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium mb-1">Address Line 2</label>
+            <label className="text-gray-700 text-sm font-medium mb-1">
+              Address Line 2
+            </label>
             <input
               name="address2"
               placeholder="Apartment, suite, unit (optional)"
@@ -69,7 +75,9 @@ export default function ShippingEntry() {
             />
           </div>
           <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium mb-1">City</label>
+            <label className="text-gray-700 text-sm font-medium mb-1">
+              City
+            </label>
             <input
               name="city"
               placeholder="City"
@@ -80,7 +88,9 @@ export default function ShippingEntry() {
             />
           </div>
           <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium mb-1">State</label>
+            <label className="text-gray-700 text-sm font-medium mb-1">
+              State
+            </label>
             <input
               name="state"
               placeholder="State or Province"
@@ -91,7 +101,9 @@ export default function ShippingEntry() {
             />
           </div>
           <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-medium mb-1">ZIP Code</label>
+            <label className="text-gray-700 text-sm font-medium mb-1">
+              ZIP Code
+            </label>
             <input
               name="zip"
               placeholder="ZIP or Postal Code"

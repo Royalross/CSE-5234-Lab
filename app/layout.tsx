@@ -20,10 +20,16 @@ export const metadata: Metadata = {
   description: "User Interface tier for Web Applications",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <Navbar />
         <main className="min-h-[calc(100vh-120px)]">{children}</main>
         <Footer />
