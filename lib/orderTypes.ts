@@ -1,8 +1,9 @@
 export type OrderItem = {
-    itemNumber: number;
-    quantity: number;
-    itemName?: string;
+  itemNumber: number;
+  quantity: number;
+  itemName?: string;
 };
+
 export type PaymentInfo = {
   holderName: string;
   cardNum: string;
@@ -27,4 +28,25 @@ export type OrderPayload = {
   paymentInfo: PaymentInfo;
   shippingInfo: ShippingInfo;
   items: OrderItem[];
+};
+
+export type OrderResult = {
+  id: number;
+  orderId: number;
+  customerName: string;
+  customerEmail: string | null;
+  status: string;
+  paymentInfoId: number;
+  shippingInfoId: number;
+  lineItemsCount: number;
+
+  totalAmount: number;
+  paymentToken: string;
+  shippingDetail: {
+    businessId: string;
+    orderId: number;
+    shipmentAddress: string;
+    packetCount: number;
+    packets: { itemNumber: number; packetWeight: number }[];
+  };
 };

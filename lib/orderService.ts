@@ -3,7 +3,7 @@ import {
   EventBridgeClient,
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
-import type { OrderItem, OrderPayload } from "./orderTypes";
+import type { OrderItem, OrderPayload, OrderResult } from "./orderTypes";
 
 export class OrderError extends Error {
   status: number;
@@ -170,7 +170,7 @@ async function saveOrderToDb(
   paymentToken: string,
   totalAmount: number,
   items: EnrichedItem[],
-): Promise<number> {
+): Promise<{ orderId: number; paymentInfoId: number; shippingInfoId: number }> {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -183,7 +183,7 @@ async function saveOrderToDb(
          RETURNING id`,
       [p.holderName, paymentToken],
     );
-    const paymentId = payRes.rows[0].id;
+    const paymentInfoId = payRes.rows[0].id;
 
     // shipping_info
     const s = body.shippingInfo;
@@ -201,7 +201,7 @@ async function saveOrderToDb(
         s.email ?? null,
       ],
     );
-    const shippingId = shipRes.rows[0].id;
+    const shippingInfoId = shipRes.rows[0].id;
 
     // customer_order with payment_token
     const orderRes = await client.query<{ id: number }>(
@@ -212,8 +212,8 @@ async function saveOrderToDb(
       [
         body.customerName,
         body.customerEmail ?? null,
-        shippingId,
-        paymentId,
+        shippingInfoId,
+        paymentInfoId,
         body.status ?? "Paid",
         paymentToken,
       ],
@@ -236,7 +236,7 @@ async function saveOrderToDb(
     );
 
     await client.query("COMMIT");
-    return orderId;
+    return { orderId, paymentInfoId, shippingInfoId };
   } catch (err) {
     await client.query("ROLLBACK");
     console.error("[saveOrderToDb]", err);
@@ -286,7 +286,7 @@ async function sendShippingEvent(orderId: number, body: OrderPayload) {
   return detail;
 }
 
-export async function createOrder(body: OrderPayload) {
+export async function createOrder(body: OrderPayload): Promise<OrderResult> {
   validatePayload(body);
 
   // Inventory, the inventory API
@@ -302,7 +302,7 @@ export async function createOrder(body: OrderPayload) {
   const { paymentToken } = await callPayment(totalAmount, body);
 
   // persist in DB
-  const orderId = await saveOrderToDb(
+  const { orderId, paymentInfoId, shippingInfoId } = await saveOrderToDb(
     body,
     paymentToken,
     totalAmount,
@@ -313,7 +313,14 @@ export async function createOrder(body: OrderPayload) {
   const shippingDetail = await sendShippingEvent(orderId, body);
 
   return {
+    id: orderId,
     orderId,
+    customerName: body.customerName,
+    customerEmail: body.customerEmail ?? null,
+    status: body.status ?? "Paid",
+    paymentInfoId,
+    shippingInfoId,
+    lineItemsCount: body.items.length,
     totalAmount,
     paymentToken,
     shippingDetail,

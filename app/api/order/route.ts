@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   let body: OrderPayload;
+
   try {
     body = (await req.json()) as OrderPayload;
   } catch {
