@@ -3,7 +3,6 @@ import { pool } from '@/lib/db';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-// --- Minimal validation helpers
 function reqStr(v: unknown, name: string) {
   if (typeof v !== 'string' || v.trim() === '') throw new Error(`${name} is required`);
   return v.trim();
@@ -22,7 +21,7 @@ type OrderPayload = {
     holderName: string;
     cardNum: string;
     expDate: string;
-    cvv: string; // NOTE: storing CVV is not PCI-compliant in real systems
+    cvv: string; 
   };
   shippingInfo?: {
     address1: string;
@@ -44,7 +43,6 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  // ---- Validate according to YOUR schema
   try {
     reqStr(body.customerName, 'customerName');
     if (!Array.isArray(body.items) || body.items.length === 0) {
@@ -69,7 +67,6 @@ export async function POST(req: Request) {
       reqStr(body.shippingInfo.state, 'shippingInfo.state');
       reqStr(body.shippingInfo.country, 'shippingInfo.country');
       reqStr(body.shippingInfo.postalCode, 'shippingInfo.postalCode');
-      // email is optional in your table
     }
   } catch (e: any) {
     return Response.json({ error: e.message }, { status: 400 });
@@ -79,7 +76,7 @@ export async function POST(req: Request) {
   try {
     await client.query('BEGIN');
 
-    // 1) payment_info -> id
+    //payment_info -> id
     let paymentId: number | null = null;
     if (body.paymentInfo) {
       const p = body.paymentInfo;
@@ -92,7 +89,7 @@ export async function POST(req: Request) {
       paymentId = r.rows[0].id;
     }
 
-    // 2) shipping_info -> id
+    //shipping_info -> id
     let shippingId: number | null = null;
     if (body.shippingInfo) {
       const s = body.shippingInfo;
@@ -105,7 +102,7 @@ export async function POST(req: Request) {
       shippingId = r.rows[0].id;
     }
 
-    // 3) customer_order -> id
+    //customer_order -> id
     const orderRes = await client.query<{ id: number }>(
       `INSERT INTO customer_order
        (customer_name, customer_email, shipping_info_id_fk, payment_info_id_fk, status)
@@ -121,7 +118,7 @@ export async function POST(req: Request) {
     );
     const orderId = orderRes.rows[0].id;
 
-    // 4) line items (batch)
+    //line items (batch)
     const vals: any[] = [];
     const rows: string[] = [];
     body.items.forEach((it, i) => {
