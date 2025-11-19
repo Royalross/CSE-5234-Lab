@@ -73,7 +73,7 @@ export default function ViewConfirmation() {
     // clear cart for next purchase flow
     localStorage.removeItem("cart");
     localStorage.removeItem("orderSummary");
-    router.push("/purchase");
+    router.push("/");
   };
 
   return (

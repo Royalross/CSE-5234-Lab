@@ -14,7 +14,7 @@ interface Item {
 }
 
 interface PaymentInfo {
-  cardHolder: string;
+  name: string;
   cardNumber: string;
   expiry: string;
   cvv: string;
@@ -37,6 +37,55 @@ export default function ViewOrder() {
   const [subtotal, setSubtotal] = useState<number>(0);
   const [tax, setTax] = useState<number>(0);
   const [totalCost, setTotalCost] = useState<number>(0);
+
+  // ---------- cart helpers ----------
+  const syncCartToStorage = (items: Item[]) => {
+    const cart: CartEntry[] = items.map((i) => ({
+      id: i.id,
+      qty: i.quantity,
+    }));
+    localStorage.setItem("cart", JSON.stringify(cart));
+  };
+
+  const updateItemQuantity = (id: string, quantity: number) => {
+    setCartItems((prev) => {
+      const updated = prev
+        .map((item) =>
+          item.id === id ? { ...item, quantity } : item,
+        )
+        .filter((item) => item.quantity > 0);
+
+      syncCartToStorage(updated);
+      return updated;
+    });
+  };
+
+  const removeItem = (id: string) => {
+    setCartItems((prev) => {
+      const updated = prev.filter((item) => item.id !== id);
+      syncCartToStorage(updated);
+      return updated;
+    });
+  };
+
+  // ---------- delete / change payment & shipping ----------
+  const handleDeletePayment = () => {
+    localStorage.removeItem("paymentInfo");
+    setPaymentInfo(null);
+  };
+
+  const handleChangePayment = () => {
+    router.push("/purchase/paymentEntry");
+  };
+
+  const handleDeleteShipping = () => {
+    localStorage.removeItem("shippingInfo");
+    setShippingInfo(null);
+  };
+
+  const handleChangeShipping = () => {
+    router.push("/purchase/shippingEntry");
+  };
 
   // Load cart + saved info
   useEffect(() => {
@@ -114,10 +163,11 @@ export default function ViewOrder() {
         totalCost,
       }),
     );
+    // go to confirmation page
     router.push("/purchase/viewConfirmation");
   };
 
-  const handleBack = () => router.push("/purchase/shippingEntry");
+  const handleBack = () => router.push("/products");
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-120px)] bg-gradient-to-br from-indigo-100 via-white to-blue-100">
@@ -135,12 +185,63 @@ export default function ViewOrder() {
             cartItems.map((item) => (
               <div
                 key={item.id}
-                className="flex justify-between text-sm text-gray-700 border-b py-1"
+                className="flex justify-between items-center text-sm text-gray-700 border-b py-2 gap-3"
               >
-                <span>
-                  {item.name} (x{item.quantity})
-                </span>
-                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                {/* Left: Name + Price/Line Total */}
+                <div className="flex-1">
+                  <div className="font-medium">
+                    {item.name}{" "}
+                    <span className="text-gray-500 text-xs">
+                      (x{item.quantity})
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    ${item.price.toFixed(2)} each &nbsp;|&nbsp; Line total: $
+                    {(item.price * item.quantity).toFixed(2)}
+                  </div>
+                </div>
+
+                {/* Middle: Quantity Editor */}
+                <div className="flex items-center gap-1">
+                  <button
+                    className="px-2 py-1 border rounded text-xs"
+                    onClick={() =>
+                      updateItemQuantity(
+                        item.id,
+                        Math.max(1, item.quantity - 1),
+                      )
+                    }
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    min={1}
+                    className="w-12 text-center border rounded text-xs"
+                    value={item.quantity}
+                    onChange={(e) => {
+                      const v = Number(e.target.value);
+                      if (!Number.isFinite(v) || v <= 0) return;
+                      updateItemQuantity(item.id, v);
+                    }}
+                  />
+                  <button
+                    className="px-2 py-1 border rounded text-xs"
+                    onClick={() =>
+                      updateItemQuantity(item.id, item.quantity + 1)
+                    }
+                  >
+                    +
+                  </button>
+                </div>
+
+                {/* Right: Remove */}
+                <button
+                  className="text-red-500 text-xs ml-1"
+                  onClick={() => removeItem(item.id)}
+                >
+                  Remove
+                </button>
               </div>
             ))
           )}
@@ -148,22 +249,74 @@ export default function ViewOrder() {
 
         {/* payment */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-800">Payment Info</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-800">
+              Payment Info
+            </h2>
+            {paymentInfo && (
+              <div className="flex gap-3 text-xs">
+                <button
+                  onClick={handleChangePayment}
+                  className="text-blue-600 hover:underline"
+                >
+                  Change
+                </button>
+                <button
+                  onClick={handleDeletePayment}
+                  className="text-red-500 hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+
           {paymentInfo ? (
             <p className="text-sm text-gray-700 mt-1">
-              Card Holder: {paymentInfo.cardHolder} <br />
-              Card Number: **** **** **** {paymentInfo.cardNumber.slice(-4)}
-              <br />
+              Card Holder: {paymentInfo.name} <br />
+              Card Number: **** **** ****{" "}
+              {paymentInfo.cardNumber.slice(-3)} <br />
               Expiry: {paymentInfo.expiry}
             </p>
           ) : (
-            <p className="text-sm text-gray-500">No payment info found.</p>
+            <>
+              <p className="text-sm text-gray-500">
+                No payment info found.
+              </p>
+              <button
+                onClick={() => router.push("/purchase/paymentEntry")}
+                className="mt-2 text-blue-600 text-sm underline hover:text-blue-800"
+              >
+                Add Payment Info
+              </button>
+            </>
           )}
         </div>
 
         {/* shipping */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-800">Shipping Info</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-800">
+              Shipping Info
+            </h2>
+            {shippingInfo && (
+              <div className="flex gap-3 text-xs">
+                <button
+                  onClick={handleChangeShipping}
+                  className="text-blue-600 hover:underline"
+                >
+                  Change
+                </button>
+                <button
+                  onClick={handleDeleteShipping}
+                  className="text-red-500 hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+
           {shippingInfo ? (
             <p className="text-sm text-gray-700 mt-1">
               {shippingInfo.name} <br />
@@ -173,7 +326,17 @@ export default function ViewOrder() {
               {shippingInfo.city}, {shippingInfo.state} {shippingInfo.zip}
             </p>
           ) : (
-            <p className="text-sm text-gray-500">No shipping info found.</p>
+            <>
+              <p className="text-sm text-gray-500">
+                No shipping info found.
+              </p>
+              <button
+                onClick={() => router.push("/purchase/shippingEntry")}
+                className="mt-2 text-blue-600 text-sm underline hover:text-blue-800"
+              >
+                Add Shipping Info
+              </button>
+            </>
           )}
         </div>
 
@@ -193,22 +356,37 @@ export default function ViewOrder() {
           </div>
         </div>
 
-        {/* buttons */}
-        <div className="flex gap-4">
-          <button
-            onClick={handleBack}
-            className="w-1/2 bg-gray-400 hover:bg-gray-500 text-white py-2 rounded-lg text-sm font-medium shadow-sm transition-all"
-          >
-            Back
-          </button>
-          <button
-            onClick={handleConfirm}
-            disabled={cartItems.length === 0}
-            className="w-1/2 disabled:opacity-60 disabled:cursor-not-allowed bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-2 rounded-lg text-sm font-medium shadow-md transition-all"
-          >
-            Confirm
-          </button>
-        </div>
+{/* buttons */}
+<div className="flex gap-4">
+  <button
+    onClick={handleBack}
+    className="w-1/2 bg-gray-400 hover:bg-gray-500 text-white py-2 rounded-lg text-sm font-medium shadow-sm transition-all"
+  >
+    Back
+  </button>
+
+  <button
+    onClick={handleConfirm}
+    disabled={
+      cartItems.length === 0 ||
+      !paymentInfo ||
+      !shippingInfo
+    }
+    className={
+      "w-1/2 py-2 rounded-lg text-sm font-medium shadow-md transition-all " +
+      (
+        cartItems.length === 0 ||
+        !paymentInfo ||
+        !shippingInfo
+          ? "opacity-60 cursor-not-allowed bg-gray-300"
+          : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+      )
+    }
+  >
+    Confirm
+  </button>
+</div>
+
       </div>
     </div>
   );

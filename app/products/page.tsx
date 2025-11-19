@@ -13,7 +13,7 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  // Load inventory from local Next.js API (which hits the DB)
+  // Load inventory from DB
   useEffect(() => {
     (async () => {
       try {
@@ -37,19 +37,28 @@ export default function Page() {
     }
   }, []);
 
-  // Persist cart whenever it changes
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
+
+  // useEffect(() => {
+  //   localStorage.setItem("cart", JSON.stringify(cart));
+  // }, [cart]);
 
   const handleAdd = (product: InventoryItem, qty: number) => {
     const id = product.itemNumber.toString(); // use itemNumber as the stable ID
     setCart((prev) => {
       const existing = prev.find((i) => i.id === id);
+      let updated: CartItem[];
+
       if (existing) {
-        return prev.map((i) => (i.id === id ? { ...i, qty: i.qty + qty } : i));
+        updated = prev.map((i) =>
+          i.id === id ? { ...i, qty: i.qty + qty } : i,
+        );
+      } else {
+        updated = [...prev, { id, qty }];
       }
-      return [...prev, { id, qty }];
+
+      // back to localStorage
+      localStorage.setItem("cart", JSON.stringify(updated));
+      return updated;
     });
   };
 
