@@ -1,5 +1,5 @@
 "use client";
-
+import type { OrderPayload } from "@/lib/orderTypes";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { listInventory, type InventoryItem } from "@/lib/api/inventory";
@@ -50,9 +50,7 @@ export default function ViewOrder() {
   const updateItemQuantity = (id: string, quantity: number) => {
     setCartItems((prev) => {
       const updated = prev
-        .map((item) =>
-          item.id === id ? { ...item, quantity } : item,
-        )
+        .map((item) => (item.id === id ? { ...item, quantity } : item))
         .filter((item) => item.quantity > 0);
 
       syncCartToStorage(updated);
@@ -151,20 +149,77 @@ export default function ViewOrder() {
     setTotalCost(totalValue);
   }, [cartItems]);
 
-  const handleConfirm = () => {
-    localStorage.setItem(
-      "orderSummary",
-      JSON.stringify({
-        cartItems,
-        paymentInfo,
-        shippingInfo,
-        subtotal,
-        tax,
-        totalCost,
-      }),
-    );
-    // go to confirmation page
-    router.push("/purchase/viewConfirmation");
+  const handleConfirm = async () => {
+
+    if (!paymentInfo || !shippingInfo || cartItems.length === 0) {
+      return;
+    }
+
+    // make cartItems / paymentInfo / shippingInfo map to backend OrderPayload
+    const payload: OrderPayload = {
+      customerName: shippingInfo.name || paymentInfo.name || "Guest",
+      customerEmail: undefined, // 如果你以后在表单里加 email，可以填进来
+      status: "NEW",
+      paymentInfo: {
+        holderName: paymentInfo.name,
+        cardNum: paymentInfo.cardNumber,
+        expDate: paymentInfo.expiry,
+        cvv: paymentInfo.cvv,
+      },
+      shippingInfo: {
+        address1: shippingInfo.address1,
+        address2: shippingInfo.address2,
+        city: shippingInfo.city,
+        state: shippingInfo.state,
+        country: "US", // hardcode to US for now
+        postalCode: shippingInfo.zip,
+        email: undefined,
+      },
+      items: cartItems.map((item) => ({
+        itemNumber: Number(item.id), // id is string, convert to number here
+        quantity: item.quantity,
+        itemName: item.name,
+      })),
+    };
+
+    try {
+      const res = await fetch("/api/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.success) {
+        console.error("Order failed:", data);
+        alert(data.message || "Failed to place order.");
+        return;
+      }
+
+      // keep orderSummary for viewConfirmation
+      localStorage.setItem(
+        "orderSummary",
+        JSON.stringify({
+          cartItems,
+          paymentInfo,
+          shippingInfo,
+          subtotal,
+          tax,
+          totalCost,
+          orderId: data.orderId, // also save the orderId returned from backend
+        }),
+      );
+
+      // Optional: clear the cart
+      localStorage.removeItem("cart");
+
+      // Navigate to confirmation page
+      router.push("/purchase/viewConfirmation");
+    } catch (e) {
+      console.error("Failed to place order (network/server error):", e);
+      alert("Failed to place order due to server error.");
+    }
   };
 
   const handleBack = () => router.push("/products");
@@ -274,15 +329,15 @@ export default function ViewOrder() {
           {paymentInfo ? (
             <p className="text-sm text-gray-700 mt-1">
               Card Holder: {paymentInfo.name} <br />
-              Card Number: **** **** ****{" "}
-              {paymentInfo.cardNumber.slice(-3)} <br />
+              Card Number: **** **** **** {paymentInfo.cardNumber.slice(
+                -3,
+              )}{" "}
+              <br />
               Expiry: {paymentInfo.expiry}
             </p>
           ) : (
             <>
-              <p className="text-sm text-gray-500">
-                No payment info found.
-              </p>
+              <p className="text-sm text-gray-500">No payment info found.</p>
               <button
                 onClick={() => router.push("/purchase/paymentEntry")}
                 className="mt-2 text-blue-600 text-sm underline hover:text-blue-800"
@@ -327,9 +382,7 @@ export default function ViewOrder() {
             </p>
           ) : (
             <>
-              <p className="text-sm text-gray-500">
-                No shipping info found.
-              </p>
+              <p className="text-sm text-gray-500">No shipping info found.</p>
               <button
                 onClick={() => router.push("/purchase/shippingEntry")}
                 className="mt-2 text-blue-600 text-sm underline hover:text-blue-800"
@@ -356,37 +409,28 @@ export default function ViewOrder() {
           </div>
         </div>
 
-{/* buttons */}
-<div className="flex gap-4">
-  <button
-    onClick={handleBack}
-    className="w-1/2 bg-gray-400 hover:bg-gray-500 text-white py-2 rounded-lg text-sm font-medium shadow-sm transition-all"
-  >
-    Back
-  </button>
+        {/* buttons */}
+        <div className="flex gap-4">
+          <button
+            onClick={handleBack}
+            className="w-1/2 bg-gray-400 hover:bg-gray-500 text-white py-2 rounded-lg text-sm font-medium shadow-sm transition-all"
+          >
+            Back
+          </button>
 
-  <button
-    onClick={handleConfirm}
-    disabled={
-      cartItems.length === 0 ||
-      !paymentInfo ||
-      !shippingInfo
-    }
-    className={
-      "w-1/2 py-2 rounded-lg text-sm font-medium shadow-md transition-all " +
-      (
-        cartItems.length === 0 ||
-        !paymentInfo ||
-        !shippingInfo
-          ? "opacity-60 cursor-not-allowed bg-gray-300"
-          : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-      )
-    }
-  >
-    Confirm
-  </button>
-</div>
-
+          <button
+            onClick={handleConfirm}
+            disabled={cartItems.length === 0 || !paymentInfo || !shippingInfo}
+            className={
+              "w-1/2 py-2 rounded-lg text-sm font-medium shadow-md transition-all " +
+              (cartItems.length === 0 || !paymentInfo || !shippingInfo
+                ? "opacity-60 cursor-not-allowed bg-gray-300"
+                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white")
+            }
+          >
+            Confirm
+          </button>
+        </div>
       </div>
     </div>
   );

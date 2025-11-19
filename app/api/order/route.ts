@@ -1,29 +1,46 @@
+// app/api/order/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import { createOrder, OrderError } from "@/lib/orderService";
 import type { OrderPayload } from "@/lib/orderTypes";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function POST(req: Request) {
-  let body: OrderPayload;
-
+export async function POST(req: NextRequest) {
   try {
-    body = (await req.json()) as OrderPayload;
-  } catch {
-    return Response.json({ error: "Invalid JSON" }, { status: 400 });
-  }
+    const body = (await req.json()) as OrderPayload;
 
-  try {
-    const result = await createOrder(body);
-    return Response.json(result, {
-      status: 201,
-      headers: { "Cache-Control": "no-store" },
-    });
-  } catch (err: any) {
-    if (err instanceof OrderError) {
-      return Response.json({ error: err.message }, { status: err.status });
+    // at least one item
+    if (!body.items || body.items.length === 0) {
+      return NextResponse.json(
+        { success: false, message: "Order must contain at least one item." },
+        { status: 400 },
+      );
     }
-    console.error("[POST /api/order] unexpected", err);
-    return Response.json({ error: "Server error" }, { status: 500 });
+
+    // Delegate all logic to createOrder (write to RDS, deduct inventory, save payment/shipping)
+    const result = await createOrder(body);
+
+    return NextResponse.json(
+      {
+        success: true,
+        orderId: result.orderId,
+      },
+      { status: 200 },
+    );
+  } catch (err: unknown) {
+    console.error("[POST /api/order] error:", err);
+
+    if (err instanceof OrderError) {
+      return NextResponse.json(
+        { success: false, message: err.message },
+        { status: 400 },
+      );
+    }
+
+    return NextResponse.json(
+      { success: false, message: "Failed to place order (server error)." },
+      { status: 500 },
+    );
   }
 }

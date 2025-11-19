@@ -175,22 +175,22 @@ async function saveOrderToDb(
   try {
     await client.query("BEGIN");
 
-    // payment_info: only holder_name + payment_token
+    // 1) payment_info
     const p = body.paymentInfo;
     const payRes = await client.query<{ id: number }>(
-      `INSERT INTO payment_info (holder_name, payment_token)
-       VALUES ($1,$2)
-         RETURNING id`,
-      [p.holderName, paymentToken],
+      `INSERT INTO payment_info (holder_name, card_num, exp_date, cvv, payment_token)
+       VALUES ($1,$2,$3,$4,$5)
+       RETURNING id`,
+      [p.holderName, p.cardNum, p.expDate, p.cvv, paymentToken],
     );
     const paymentInfoId = payRes.rows[0].id;
 
-    // shipping_info
+    // 2) shipping_info
     const s = body.shippingInfo;
     const shipRes = await client.query<{ id: number }>(
       `INSERT INTO shipping_info (address1, address2, city, state, country, postal_code, email)
        VALUES ($1,$2,$3,$4,$5,$6,$7)
-         RETURNING id`,
+       RETURNING id`,
       [
         s.address1,
         s.address2 ?? null,
@@ -203,12 +203,12 @@ async function saveOrderToDb(
     );
     const shippingInfoId = shipRes.rows[0].id;
 
-    // customer_order with payment_token
+    // 3) customer_order
     const orderRes = await client.query<{ id: number }>(
       `INSERT INTO customer_order
        (customer_name, customer_email, shipping_info_id_fk, payment_info_id_fk, status, payment_token)
        VALUES ($1,$2,$3,$4,$5,$6)
-         RETURNING id`,
+       RETURNING id`,
       [
         body.customerName,
         body.customerEmail ?? null,
@@ -220,7 +220,7 @@ async function saveOrderToDb(
     );
     const orderId = orderRes.rows[0].id;
 
-    // line items
+    // 4) line items
     const vals: any[] = [];
     const rows: string[] = [];
     items.forEach((it, i) => {
@@ -234,6 +234,16 @@ async function saveOrderToDb(
        VALUES ${rows.join(",")}`,
       vals,
     );
+
+    // 5) 扣库存：item 表
+    for (const it of items) {
+      await client.query(
+        `UPDATE item
+         SET available_quantity = available_quantity - $1
+         WHERE item_number = $2`,
+        [it.quantity, it.itemNumber],
+      );
+    }
 
     await client.query("COMMIT");
     return { orderId, paymentInfoId, shippingInfoId };
@@ -287,21 +297,22 @@ async function sendShippingEvent(orderId: number, body: OrderPayload) {
 }
 
 export async function createOrder(body: OrderPayload): Promise<OrderResult> {
+  // 1. unchanged validate payload
   validatePayload(body);
 
-  // Inventory, the inventory API
+  // 2. Load prices and inventory from inventory service, and validate quantities (reuse your previous logic)
   const enrichedItems = await loadAndValidateItemsFromInventory(body.items);
 
-  // total from unit_price in inventory
+  // 3. Calculate total amount using unit price * quantity
   const totalAmount = enrichedItems.reduce(
     (sum, it) => sum + it.quantity * it.unitPrice,
     0,
   );
 
-  // payment (sync)
-  const { paymentToken } = await callPayment(totalAmount, body);
+  // 4. No longer actually call payment microservice, generate a fake paymentToken
+  const paymentToken = `FAKE-${Date.now().toString(36)}`;
 
-  // persist in DB
+  // 5. Write order + paymentInfo + shippingInfo + line items to RDS, and deduct inventory there
   const { orderId, paymentInfoId, shippingInfoId } = await saveOrderToDb(
     body,
     paymentToken,
@@ -309,9 +320,10 @@ export async function createOrder(body: OrderPayload): Promise<OrderResult> {
     enrichedItems,
   );
 
-  // async shipping event
+  // 6. Send shipping event (if EVENT_BUS_NAME is not set, it will be skipped)
   const shippingDetail = await sendShippingEvent(orderId, body);
 
+  // 7. Return result to /api/order
   return {
     id: orderId,
     orderId,
