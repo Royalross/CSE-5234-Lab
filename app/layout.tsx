@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MyGolf | CSE 5234 Lab 6",
+  title: "NovaTech Marketplace | CSE 5234",
   description: "User Interface tier for Web Applications",
 };
 

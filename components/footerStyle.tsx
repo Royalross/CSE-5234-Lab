@@ -1,19 +1,39 @@
-// components/Footer.tsx
-export default function footerStyle() {
+export default function FooterStyle() {
   return (
-    <footer className="bg-gray-100 text-gray-700 py-6 mt-10 border-t">
-      <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
-        <p className="text-sm">
-          © {new Date().getFullYear()} CSE5234 Team 8. All rights reserved
+    <footer className="
+      bg-[#0B122C]/70 
+      backdrop-blur-xl 
+      border-t border-white/10
+      text-gray-300 
+      py-8 mt-20
+    ">
+      <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between">
+        
+        {/* Left side text */}
+        <p className="text-sm text-gray-400">
+          © {new Date().getFullYear()} NovaTech Marketplace — All Rights Reserved
         </p>
-        <div className="flex space-x-4 mt-3 md:mt-0">
-          <a href="/about" className="hover:text-blue-600">
+
+        {/* Links */}
+        <div className="flex space-x-6 mt-4 md:mt-0 text-sm">
+          <a 
+            href="/about" 
+            className="hover:text-cyan-300 transition"
+          >
             About
           </a>
-          <a href="/contact" className="hover:text-blue-600">
+
+          <a 
+            href="/contact" 
+            className="hover:text-cyan-300 transition"
+          >
             Contact
           </a>
-          <a href="/privacy" className="hover:text-blue-600">
+
+          <a 
+            href="/privacy" 
+            className="hover:text-cyan-300 transition"
+          >
             Privacy Policy
           </a>
         </div>
