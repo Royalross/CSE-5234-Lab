@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { type Product } from "@/lib/dummy_data";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Product;
@@ -19,62 +20,87 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, onAdd }: ProductCardProps) {
   const [qty, setQty] = useState<number>(1);
-  const add = () => onAdd?.(product, qty);
 
   const imgSrc =
-    product.imageSrc && product.imageSrc.trim() !== ""
+    typeof product.imageSrc === "string" && product.imageSrc.trim() !== ""
       ? product.imageSrc
       : "/placeholder.png";
-  const imgAlt = product.imageAlt || product.title || "Product image";
+
+  const handleAdd = () => {
+    onAdd?.(product, qty);
+
+    toast.success(
+      `${product.title} added to cart (${qty} item${qty > 1 ? "s" : ""})`
+    );
+
+    setQty(1);
+  };
 
   return (
-    <Card className="h-full rounded-md flex flex-col">
+    <Card
+      className="
+        h-full flex flex-col rounded-2xl overflow-hidden
+        bg-[#11172e]/60 backdrop-blur-xl 
+        border border-white/10
+        shadow-[0_0_20px_rgba(0,0,0,0.6)]
+        hover:shadow-[0_0_35px_rgba(0,200,255,0.25)]
+        hover:-translate-y-1 transition-all duration-300
+        text-white
+      "
+    >
       <CardHeader className="p-0">
-        <div className="w-full h-full rounded">
+        <div className="w-full h-[300px] overflow-hidden">
           <Image
             src={imgSrc}
-            alt={imgAlt}
-            width={700}
+            alt={product.title}
+            width={800}
             height={300}
-            className="w-[700px] h-[300px] rounded-t-[5px] object-cover"
+            unoptimized
+            className="
+              w-full h-full object-cover 
+              transition-transform duration-300 hover:scale-105
+            "
           />
         </div>
       </CardHeader>
 
-      <CardContent className="pt-2 flex-1">
-        <p className="font-bold">{product.title}</p>
+      <CardContent className="pt-4 px-4 flex-1">
+        <p className="font-bold text-lg">{product.title}</p>
+
         {product.subtitle && (
-          <p className="text-sm text-muted-foreground mt-1">
-            {product.subtitle}
-          </p>
+          <p className="text-sm text-gray-300 mt-1">{product.subtitle}</p>
         )}
-        {typeof product.purchasedCount === "number" && (
-          <p className="text-xs text-muted-foreground mt-2">
-            {product.purchasedCount}+ bought in the past month
-          </p>
-        )}
-        <p className="font-bold mt-3">
-          $
-          {product.price.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-          })}
+
+        <p className="text-cyan-300 font-bold text-xl mt-4">
+          ${product.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </p>
       </CardContent>
 
-      <CardFooter className="gap-2 justify-end">
+      <CardFooter className="px-4 pb-4 gap-3 justify-end">
         <Input
           type="number"
-          inputMode="numeric"
           min={1}
           max={99}
           value={qty}
-          onChange={(e) =>
-            setQty(Math.max(1, Math.min(99, Number(e.target.value) || 1)))
-          }
-          className="w-20"
-          aria-label="Quantity"
+          onChange={(e) => {
+            const n = Number(e.target.value);
+            if (!isNaN(n)) setQty(Math.max(1, Math.min(99, n)));
+          }}
+          className="
+            w-20 text-white bg-white/10 border border-white/20
+            focus-visible:ring-cyan-400
+          "
         />
-        <Button variant="outline" onClick={add}>
+
+        <Button
+          onClick={handleAdd}
+          className="
+            bg-gradient-to-r from-cyan-500 to-blue-500
+            hover:from-cyan-400 hover:to-blue-400
+            text-white font-semibold px-4 py-2 rounded-lg
+            shadow-md hover:shadow-xl transition-all
+          "
+        >
           Add to Cart
         </Button>
       </CardFooter>

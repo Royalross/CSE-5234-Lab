@@ -38,7 +38,6 @@ export default function ViewOrder() {
   const [tax, setTax] = useState<number>(0);
   const [totalCost, setTotalCost] = useState<number>(0);
 
-  // ---------- cart helpers ----------
   const syncCartToStorage = (items: Item[]) => {
     const cart: CartEntry[] = items.map((i) => ({
       id: i.id,
@@ -66,26 +65,20 @@ export default function ViewOrder() {
     });
   };
 
-  // ---------- delete / change payment & shipping ----------
   const handleDeletePayment = () => {
     localStorage.removeItem("paymentInfo");
     setPaymentInfo(null);
   };
 
-  const handleChangePayment = () => {
-    router.push("/purchase/paymentEntry");
-  };
+  const handleChangePayment = () => router.push("/purchase/paymentEntry");
 
   const handleDeleteShipping = () => {
     localStorage.removeItem("shippingInfo");
     setShippingInfo(null);
   };
 
-  const handleChangeShipping = () => {
-    router.push("/purchase/shippingEntry");
-  };
+  const handleChangeShipping = () => router.push("/purchase/shippingEntry");
 
-  // Load cart + saved info
   useEffect(() => {
     const raw = localStorage.getItem("cart");
     const cart: CartEntry[] = raw ? JSON.parse(raw) : [];
@@ -93,13 +86,13 @@ export default function ViewOrder() {
     (async () => {
       try {
         const inv: InventoryItem[] = await listInventory();
-
         const map = new Map(inv.map((i) => [String(i.itemNumber), i]));
 
         const merged: Item[] = cart
           .map(({ id, qty }) => {
             const p = map.get(String(id));
             if (!p) return null;
+
             return {
               id: String(p.itemNumber),
               name: p.name,
@@ -110,8 +103,7 @@ export default function ViewOrder() {
           .filter((x): x is Item => x !== null);
 
         setCartItems(merged);
-      } catch (e) {
-        console.error("Failed to load inventory:", e);
+      } catch {
         setCartItems([]);
       }
     })();
@@ -120,26 +112,21 @@ export default function ViewOrder() {
     if (savedPayment) {
       try {
         setPaymentInfo(JSON.parse(savedPayment));
-      } catch {
-        console.warn("Bad paymentInfo in storage");
-      }
+      } catch {}
     }
 
     const savedShipping = localStorage.getItem("shippingInfo");
     if (savedShipping) {
       try {
         setShippingInfo(JSON.parse(savedShipping));
-      } catch {
-        console.warn("Bad shippingInfo in storage");
-      }
+      } catch {}
     }
   }, []);
 
-  // compute totals
   useEffect(() => {
     const subtotalValue = cartItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
-      0,
+      0
     );
     const taxValue = subtotalValue * 0.08;
     const totalValue = subtotalValue + taxValue;
@@ -150,15 +137,11 @@ export default function ViewOrder() {
   }, [cartItems]);
 
   const handleConfirm = async () => {
+    if (!paymentInfo || !shippingInfo || cartItems.length === 0) return;
 
-    if (!paymentInfo || !shippingInfo || cartItems.length === 0) {
-      return;
-    }
-
-    // make cartItems / paymentInfo / shippingInfo map to backend OrderPayload
     const payload: OrderPayload = {
       customerName: shippingInfo.name || paymentInfo.name || "Guest",
-      customerEmail: undefined, // 如果你以后在表单里加 email，可以填进来
+      customerEmail: undefined,
       status: "NEW",
       paymentInfo: {
         holderName: paymentInfo.name,
@@ -171,12 +154,12 @@ export default function ViewOrder() {
         address2: shippingInfo.address2,
         city: shippingInfo.city,
         state: shippingInfo.state,
-        country: "US", // hardcode to US for now
+        country: "US",
         postalCode: shippingInfo.zip,
         email: undefined,
       },
       items: cartItems.map((item) => ({
-        itemNumber: Number(item.id), // id is string, convert to number here
+        itemNumber: Number(item.id),
         quantity: item.quantity,
         itemName: item.name,
       })),
@@ -192,12 +175,10 @@ export default function ViewOrder() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok || !data.success) {
-        console.error("Order failed:", data);
         alert(data.message || "Failed to place order.");
         return;
       }
 
-      // keep orderSummary for viewConfirmation
       localStorage.setItem(
         "orderSummary",
         JSON.stringify({
@@ -207,119 +188,114 @@ export default function ViewOrder() {
           subtotal,
           tax,
           totalCost,
-          orderId: data.orderId, // also save the orderId returned from backend
-        }),
+          orderId: data.orderId,
+        })
       );
 
-      // Optional: clear the cart
       localStorage.removeItem("cart");
-
-      // Navigate to confirmation page
       router.push("/purchase/viewConfirmation");
     } catch (e) {
-      console.error("Failed to place order (network/server error):", e);
-      alert("Failed to place order due to server error.");
+      alert("Server error.");
     }
   };
 
   const handleBack = () => router.push("/products");
 
+  // --------------------------------------------------------------------------
+  //                               UI STARTS HERE
+  // --------------------------------------------------------------------------
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-120px)] bg-gradient-to-br from-indigo-100 via-white to-blue-100">
-      <div className="bg-white/90 backdrop-blur-md shadow-2xl rounded-2xl p-8 w-full max-w-md border border-blue-100 scale-95">
-        <h1 className="text-2xl font-bold text-center mb-6 text-blue-700">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0f2c] via-[#10173a] to-[#18224d] p-6 text-white">
+      <div className="
+        w-full max-w-lg rounded-3xl p-8 
+        bg-white/10 backdrop-blur-xl 
+        border border-white/20 
+        shadow-[0_0_40px_rgba(0,150,255,0.25)]
+      ">
+        <h1 className="text-3xl font-extrabold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-purple-300 drop-shadow-lg">
           Order Summary
         </h1>
 
-        {/* items */}
-        <div className="space-y-2 mb-6">
-          <h2 className="text-lg font-semibold text-gray-800">Items</h2>
+        {/* ITEMS */}
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-3 text-cyan-200">Items</h2>
+
           {cartItems.length === 0 ? (
-            <p className="text-sm text-gray-500">Your cart is empty.</p>
+            <p className="text-gray-300 text-sm">Your cart is empty.</p>
           ) : (
-            cartItems.map((item) => (
-              <div
-                key={item.id}
-                className="flex justify-between items-center text-sm text-gray-700 border-b py-2 gap-3"
-              >
-                {/* Left: Name + Price/Line Total */}
-                <div className="flex-1">
-                  <div className="font-medium">
-                    {item.name}{" "}
-                    <span className="text-gray-500 text-xs">
-                      (x{item.quantity})
-                    </span>
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    ${item.price.toFixed(2)} each &nbsp;|&nbsp; Line total: $
-                    {(item.price * item.quantity).toFixed(2)}
-                  </div>
-                </div>
-
-                {/* Middle: Quantity Editor */}
-                <div className="flex items-center gap-1">
-                  <button
-                    className="px-2 py-1 border rounded text-xs"
-                    onClick={() =>
-                      updateItemQuantity(
-                        item.id,
-                        Math.max(1, item.quantity - 1),
-                      )
-                    }
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    min={1}
-                    className="w-12 text-center border rounded text-xs"
-                    value={item.quantity}
-                    onChange={(e) => {
-                      const v = Number(e.target.value);
-                      if (!Number.isFinite(v) || v <= 0) return;
-                      updateItemQuantity(item.id, v);
-                    }}
-                  />
-                  <button
-                    className="px-2 py-1 border rounded text-xs"
-                    onClick={() =>
-                      updateItemQuantity(item.id, item.quantity + 1)
-                    }
-                  >
-                    +
-                  </button>
-                </div>
-
-                {/* Right: Remove */}
-                <button
-                  className="text-red-500 text-xs ml-1"
-                  onClick={() => removeItem(item.id)}
+            <div className="space-y-3">
+              {cartItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="
+                    p-4 rounded-xl 
+                    bg-white/5 border border-white/10 
+                    shadow-inner backdrop-blur-sm
+                    flex items-center justify-between
+                  "
                 >
-                  Remove
-                </button>
-              </div>
-            ))
-          )}
-        </div>
+                  <div>
+                    <p className="font-semibold text-white">
+                      {item.name} <span className="text-gray-400 text-xs">(x{item.quantity})</span>
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      ${item.price.toFixed(2)} each — Line: ${(item.price * item.quantity).toFixed(2)}
+                    </p>
+                  </div>
 
-        {/* payment */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-800">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() =>
+                        updateItemQuantity(item.id, Math.max(1, item.quantity - 1))
+                      }
+                      className="px-2 py-1 rounded bg-white/10 text-sm hover:bg-white/20"
+                    >
+                      –
+                    </button>
+
+                    <input
+                      type="number"
+                      min={1}
+                      value={item.quantity}
+                      className="w-12 bg-white/10 text-center text-sm rounded border border-white/20"
+                      onChange={(e) =>
+                        updateItemQuantity(item.id, Math.max(1, Number(e.target.value)))
+                      }
+                    />
+
+                    <button
+                      onClick={() => updateItemQuantity(item.id, item.quantity + 1)}
+                      className="px-2 py-1 rounded bg-white/10 text-sm hover:bg-white/20"
+                    >
+                      +
+                    </button>
+
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className="text-red-400 text-xs hover:text-red-300"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* PAYMENT INFO */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xl font-semibold text-purple-200">
               Payment Info
             </h2>
+
             {paymentInfo && (
-              <div className="flex gap-3 text-xs">
-                <button
-                  onClick={handleChangePayment}
-                  className="text-blue-600 hover:underline"
-                >
+              <div className="flex gap-4 text-xs">
+                <button onClick={handleChangePayment} className="text-cyan-300 hover:underline">
                   Change
                 </button>
-                <button
-                  onClick={handleDeletePayment}
-                  className="text-red-500 hover:underline"
-                >
+                <button onClick={handleDeletePayment} className="text-red-400 hover:underline">
                   Delete
                 </button>
               </div>
@@ -327,45 +303,34 @@ export default function ViewOrder() {
           </div>
 
           {paymentInfo ? (
-            <p className="text-sm text-gray-700 mt-1">
-              Card Holder: {paymentInfo.name} <br />
-              Card Number: **** **** **** {paymentInfo.cardNumber.slice(
-                -3,
-              )}{" "}
-              <br />
-              Expiry: {paymentInfo.expiry}
-            </p>
+            <div className="text-gray-200 text-sm">
+              <p>Holder: {paymentInfo.name}</p>
+              <p>Card: **** **** **** {paymentInfo.cardNumber.slice(-3)}</p>
+              <p>Expiry: {paymentInfo.expiry}</p>
+            </div>
           ) : (
-            <>
-              <p className="text-sm text-gray-500">No payment info found.</p>
-              <button
-                onClick={() => router.push("/purchase/paymentEntry")}
-                className="mt-2 text-blue-600 text-sm underline hover:text-blue-800"
-              >
-                Add Payment Info
-              </button>
-            </>
+            <button
+              onClick={() => router.push("/purchase/paymentEntry")}
+              className="text-cyan-300 text-sm underline"
+            >
+              Add Payment Info
+            </button>
           )}
-        </div>
+        </section>
 
-        {/* shipping */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-800">
+        {/* SHIPPING */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xl font-semibold text-cyan-200">
               Shipping Info
             </h2>
+
             {shippingInfo && (
-              <div className="flex gap-3 text-xs">
-                <button
-                  onClick={handleChangeShipping}
-                  className="text-blue-600 hover:underline"
-                >
+              <div className="flex gap-4 text-xs">
+                <button onClick={handleChangeShipping} className="text-cyan-300 hover:underline">
                   Change
                 </button>
-                <button
-                  onClick={handleDeleteShipping}
-                  className="text-red-500 hover:underline"
-                >
+                <button onClick={handleDeleteShipping} className="text-red-400 hover:underline">
                   Delete
                 </button>
               </div>
@@ -373,47 +338,57 @@ export default function ViewOrder() {
           </div>
 
           {shippingInfo ? (
-            <p className="text-sm text-gray-700 mt-1">
-              {shippingInfo.name} <br />
-              {shippingInfo.address1}
-              {shippingInfo.address2 && <>, {shippingInfo.address2}</>}
-              <br />
-              {shippingInfo.city}, {shippingInfo.state} {shippingInfo.zip}
-            </p>
+            <div className="text-gray-200 text-sm">
+              <p>{shippingInfo.name}</p>
+              <p>{shippingInfo.address1}</p>
+              {shippingInfo.address2 && <p>{shippingInfo.address2}</p>}
+              <p>
+                {shippingInfo.city}, {shippingInfo.state} {shippingInfo.zip}
+              </p>
+            </div>
           ) : (
-            <>
-              <p className="text-sm text-gray-500">No shipping info found.</p>
-              <button
-                onClick={() => router.push("/purchase/shippingEntry")}
-                className="mt-2 text-blue-600 text-sm underline hover:text-blue-800"
-              >
-                Add Shipping Info
-              </button>
-            </>
+            <button
+              onClick={() => router.push("/purchase/shippingEntry")}
+              className="text-cyan-300 text-sm underline"
+            >
+              Add Shipping Info
+            </button>
           )}
-        </div>
+        </section>
 
-        {/* totals */}
-        <div className="text-gray-800 font-semibold mb-6 space-y-1">
-          <div className="flex justify-between text-sm">
-            <span>Subtotal:</span>
-            <span>${subtotal.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span>Tax (8%):</span>
-            <span>${tax.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between text-base border-t pt-2">
-            <span>Total:</span>
-            <span>${totalCost.toFixed(2)}</span>
-          </div>
-        </div>
+        {/* TOTALS */}
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold text-purple-200 mb-3">
+            Total
+          </h2>
 
-        {/* buttons */}
-        <div className="flex gap-4">
+          <div className="space-y-1 text-gray-200 text-sm">
+            <div className="flex justify-between">
+              <span>Subtotal:</span>
+              <span>${subtotal.toFixed(2)}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>Tax (8%):</span>
+              <span>${tax.toFixed(2)}</span>
+            </div>
+
+            <div className="flex justify-between border-t border-white/10 pt-2 text-lg font-bold text-cyan-300">
+              <span>Total:</span>
+              <span>${totalCost.toFixed(2)}</span>
+            </div>
+          </div>
+        </section>
+
+        {/* BUTTONS */}
+        <div className="flex gap-4 mt-6">
           <button
             onClick={handleBack}
-            className="w-1/2 bg-gray-400 hover:bg-gray-500 text-white py-2 rounded-lg text-sm font-medium shadow-sm transition-all"
+            className="
+              w-1/2 py-2 rounded-lg 
+              bg-white/10 hover:bg-white/20 
+              text-white shadow-md transition-all
+            "
           >
             Back
           </button>
@@ -421,12 +396,14 @@ export default function ViewOrder() {
           <button
             onClick={handleConfirm}
             disabled={cartItems.length === 0 || !paymentInfo || !shippingInfo}
-            className={
-              "w-1/2 py-2 rounded-lg text-sm font-medium shadow-md transition-all " +
-              (cartItems.length === 0 || !paymentInfo || !shippingInfo
-                ? "opacity-60 cursor-not-allowed bg-gray-300"
-                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white")
-            }
+            className={`
+              w-1/2 py-2 rounded-lg text-white font-semibold transition-all
+              ${
+                cartItems.length === 0 || !paymentInfo || !shippingInfo
+                  ? "opacity-50 cursor-not-allowed bg-gray-500"
+                  : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-xl"
+              }
+            `}
           >
             Confirm
           </button>

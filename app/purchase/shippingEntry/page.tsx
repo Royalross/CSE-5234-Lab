@@ -32,7 +32,7 @@ export default function ShippingEntry() {
     });
   }
 
-  // Submit form → Call AWS API Gateway → Lambda → RDS
+  // Submit form → call AWS API Gateway → Lambda → RDS
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -51,7 +51,7 @@ export default function ShippingEntry() {
       state: form.state,
       country: "US",
       postal_code: form.zip,
-      email: `${form.name || "user"}@example.com`, // if no email, generate a dummy one
+      email: `${form.name || "user"}@example.com`, // If no email on the frontend, just generate one
     };
 
     try {
@@ -72,7 +72,7 @@ export default function ShippingEntry() {
       console.log("SUCCESS:", data);
       alert("Shipping info submitted successfully!");
 
-      // Navigate to the next page
+      // jump to confirmation page
       router.push("/purchase/viewConfirmation");
     } catch (err) {
       console.error("Shipping error:", err);

@@ -59,87 +59,81 @@ export default function ViewConfirmation() {
         setConfirmationNumber(conf);
       } catch {
         setConfirmationNumber(
-          queryConf || `ORD-${Math.floor(Math.random() * 900000 + 100000)}`,
+          queryConf || `ORD-${Math.floor(Math.random() * 900000 + 100000)}`
         );
       }
     } else {
       setConfirmationNumber(
-        queryConf || `ORD-${Math.floor(Math.random() * 900000 + 100000)}`,
+        queryConf || `ORD-${Math.floor(Math.random() * 900000 + 100000)}`
       );
     }
   }, [search]);
 
   const handleReturnHome = () => {
-    // clear cart for next purchase flow
     localStorage.removeItem("cart");
     localStorage.removeItem("orderSummary");
     router.push("/");
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-120px)] bg-gradient-to-br from-green-100 via-white to-blue-100">
-      <div className="bg-white/90 backdrop-blur-md shadow-2xl rounded-2xl p-8 w-full max-w-md border border-green-100 scale-95">
-        <h1 className="text-2xl font-bold text-center mb-4 text-green-700">
-          🎉 Order Confirmed!
+    <div className="flex items-center justify-center min-h-[calc(100vh-120px)] bg-gradient-to-br from-[#0a0f24] via-[#11172e] to-[#1a2240]">
+      <div className="bg-white/10 backdrop-blur-xl shadow-2xl rounded-2xl p-8 w-full max-w-md border border-white/20 scale-[0.98] text-white">
+        <h1 className="text-3xl font-bold text-center mb-3 bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
+          Order Confirmed
         </h1>
-        <p className="text-center text-gray-700 mb-6">
-          Thank you for your purchase. Your order has been successfully placed.
+
+        <p className="text-center text-gray-300 mb-6">
+          Thank you for your purchase!
         </p>
 
-        {/* confirmation num */}
-        <div className="text-center mb-6">
-          <span className="font-semibold text-gray-800">
-            Confirmation Number:
-          </span>
-          <div className="text-xl font-mono text-blue-700 mt-1">
+        <div className="text-center mb-8">
+          <span className="font-semibold text-gray-300">Confirmation Code</span>
+          <div className="text-2xl font-mono text-cyan-300 mt-1 tracking-wide">
             {confirmationNumber}
           </div>
         </div>
 
-        {/* items */}
         {cartItems.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-cyan-300 mb-2">
               Order Summary
             </h2>
             {cartItems.map((item) => (
               <div
                 key={item.id}
-                className="flex justify-between text-sm text-gray-700 border-b py-1"
+                className="flex justify-between text-sm text-gray-300 border-b border-white/10 py-2"
               >
                 <span>
                   {item.name} (x{item.quantity})
                 </span>
-                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                <span className="text-cyan-300">
+                  ${(item.price * item.quantity).toFixed(2)}
+                </span>
               </div>
             ))}
           </div>
         )}
 
-        {/* payment */}
         {paymentInfo && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-800">
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-cyan-300">
               Payment Info
             </h2>
-            <p className="text-sm text-gray-700 mt-1">
+            <p className="text-sm text-gray-300 mt-1">
               Card Holder: {paymentInfo.cardHolder} <br />
-              Card Number: **** **** **** {paymentInfo.cardNumber.slice(
-                -4,
-              )}{" "}
+              Card Number: **** **** **** {paymentInfo.cardNumber.slice(-4)}{" "}
               <br />
               Expiry: {paymentInfo.expiry}
             </p>
           </div>
         )}
 
-        {/* shipping */}
         {shippingInfo && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-800">
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-cyan-300">
               Shipping Info
             </h2>
-            <p className="text-sm text-gray-700 mt-1">
+            <p className="text-sm text-gray-300 mt-1">
               {shippingInfo.name} <br />
               {shippingInfo.address1}
               {shippingInfo.address2 && <>, {shippingInfo.address2}</>}
@@ -149,26 +143,24 @@ export default function ViewConfirmation() {
           </div>
         )}
 
-        {/* totals */}
-        <div className="text-gray-800 font-semibold mb-6 space-y-1">
+        <div className="text-gray-200 font-semibold mb-8 space-y-1">
           <div className="flex justify-between text-sm">
-            <span>Subtotal:</span>
-            <span>${subtotal.toFixed(2)}</span>
+            <span>Subtotal</span>
+            <span className="text-cyan-300">${subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span>Tax (8%):</span>
-            <span>${tax.toFixed(2)}</span>
+            <span>Tax (8%)</span>
+            <span className="text-cyan-300">${tax.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-base border-t pt-2">
-            <span>Total:</span>
-            <span>${totalCost.toFixed(2)}</span>
+          <div className="flex justify-between text-base border-t border-white/10 pt-2">
+            <span>Total</span>
+            <span className="text-blue-300">${totalCost.toFixed(2)}</span>
           </div>
         </div>
 
-        {/* button */}
         <button
           onClick={handleReturnHome}
-          className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white py-2 rounded-lg text-sm font-medium shadow-md transition-all"
+          className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white py-3 rounded-xl text-sm font-medium shadow-lg hover:shadow-cyan-500/30 transition-all"
         >
           Return to Home
         </button>

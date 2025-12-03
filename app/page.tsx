@@ -2,27 +2,43 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="min-h-[calc(100vh-120px)] bg-gradient-to-b from-indigo-50 via-white to-blue-100">
-      <section className="relative text-center py-24 px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-200 via-transparent to-transparent opacity-50" />
+    <main className="min-h-[calc(100vh-120px)] bg-gradient-to-b from-[#1a1f35] via-[#111827] to-[#1e1b4b] text-white">
+      {/* HERO SECTION */}
+      <section className="relative text-center py-28 px-6 overflow-hidden">
+        {/* Futuristic Glow */}
+        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.25),_transparent_70%)]" />
+
         <div className="relative z-10 max-w-5xl mx-auto">
-          <h1 className="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-700 drop-shadow-sm">
-            Welcome to Our Store
+          {/* Title */}
+          <h1 className="text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 drop-shadow-xl">
+            NovaTech Marketplace
           </h1>
-          <p className="mt-5 text-lg text-gray-700 max-w-2xl mx-auto leading-relaxed">
-            Discover a curated collection of modern products and services built
-            for simplicity, quality, and design.
+
+          {/* Subtitle */}
+          <p className="mt-5 text-lg text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Next-generation laptops, peripherals, and accessories engineered for
+            performance, precision, and modern digital lifestyles.
           </p>
-          <div className="mt-10 flex items-center justify-center gap-5">
+
+          {/* CTA buttons */}
+          <div className="mt-12 flex items-center justify-center gap-6">
+            {/* Primary CTA */}
             <Link
               href="/products"
-              className="px-8 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium shadow-lg hover:shadow-xl hover:scale-105 transition-transform"
+              className="px-10 py-3 rounded-full text-white font-semibold 
+              bg-gradient-to-r from-cyan-400 to-blue-500 
+              shadow-[0_0_20px_rgba(56,189,248,0.45)] hover:shadow-[0_0_35px_rgba(56,189,248,0.7)]
+              hover:scale-105 active:scale-95 transition-all duration-200"
             >
-              View Products
+              Explore Products
             </Link>
+
+            {/* Secondary CTA */}
             <Link
               href="/about"
-              className="px-8 py-3 rounded-full border border-indigo-300 text-indigo-700 bg-white/60 backdrop-blur-sm hover:bg-indigo-50 transition"
+              className="px-10 py-3 rounded-full font-semibold border border-cyan-300/40 
+              bg-white/5 backdrop-blur-sm text-cyan-200 
+              hover:bg-white/10 hover:border-cyan-200 transition-all"
             >
               Learn More
             </Link>
@@ -30,53 +46,67 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-6 pb-20 grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="rounded-2xl bg-white/70 backdrop-blur-md border border-indigo-100 shadow-md hover:shadow-lg transition p-8 text-center hover:-translate-y-1">
-          <h3 className="text-2xl font-semibold text-indigo-700 mb-2">
-            Great Selection
+      {/* FEATURES SECTION */}
+      <section className="max-w-6xl mx-auto px-6 pb-24 grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Card 1 */}
+        <div className="rounded-2xl bg-white/5 border border-cyan-300/10 p-8 text-center shadow-lg
+        hover:bg-white/10 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(56,189,248,0.25)] transition">
+          <h3 className="text-2xl font-semibold text-cyan-300 mb-2">
+            Premium Selection
           </h3>
-          <p className="text-gray-600">
-            Explore carefully selected items that match your needs and reflect
-            quality craftsmanship.
+          <p className="text-gray-300">
+            Curated tech essentials crafted for exceptional quality and advanced performance.
           </p>
         </div>
-        <div className="rounded-2xl bg-white/70 backdrop-blur-md border border-indigo-100 shadow-md hover:shadow-lg transition p-8 text-center hover:-translate-y-1">
-          <h3 className="text-2xl font-semibold text-indigo-700 mb-2">
-            Fast Checkout
+
+        {/* Card 2 */}
+        <div className="rounded-2xl bg-white/5 border border-purple-300/10 p-8 text-center shadow-lg
+        hover:bg-white/10 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(168,85,247,0.25)] transition">
+          <h3 className="text-2xl font-semibold text-purple-300 mb-2">
+            Rapid Checkout
           </h3>
-          <p className="text-gray-600">
-            Enjoy a smooth, secure, and simple checkout process built for
-            efficiency and trust.
+          <p className="text-gray-300">
+            A seamless, secure shopping experience powered by next-gen optimization.
           </p>
         </div>
-        <div className="rounded-2xl bg-white/70 backdrop-blur-md border border-indigo-100 shadow-md hover:shadow-lg transition p-8 text-center hover:-translate-y-1">
-          <h3 className="text-2xl font-semibold text-indigo-700 mb-2">
-            Customer Support
+
+        {/* Card 3 */}
+        <div className="rounded-2xl bg-white/5 border border-pink-300/10 p-8 text-center shadow-lg
+        hover:bg-white/10 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(236,72,153,0.25)] transition">
+          <h3 className="text-2xl font-semibold text-pink-300 mb-2">
+            24/7 Support
           </h3>
-          <p className="text-gray-600">
-            Our dedicated team is always ready to assist you with quick,
-            reliable help anytime you need it.
+          <p className="text-gray-300">
+            Reliable, friendly assistance ready to help you anytime, anywhere.
           </p>
         </div>
       </section>
 
+      {/* FINAL CTA SECTION */}
       <section className="max-w-4xl mx-auto px-6 pb-24 text-center">
-        <div className="rounded-3xl border border-indigo-100 bg-gradient-to-r from-indigo-100 via-white to-blue-100 p-10 shadow-sm hover:shadow-md transition">
-          <h3 className="text-3xl font-bold text-indigo-700 mb-3">
-            Start Shopping Today
+        <div className="rounded-3xl border border-blue-300/10 bg-gradient-to-r from-[#0f172a] via-[#1e1b4b] to-[#312e81]
+        p-10 shadow-xl hover:shadow-[0_0_40px_rgba(56,189,248,0.2)] transition">
+          <h3 className="text-3xl font-bold text-cyan-300 mb-3">
+            Ready to Upgrade Your Gear?
           </h3>
-          <p className="text-gray-600 mb-8">
-            Browse our latest arrivals and experience a seamless online shopping
-            experience.
+          <p className="text-gray-300 mb-8">
+            Browse our latest arrivals and experience a futuristic shopping journey.
           </p>
+
           <Link
             href="/products"
-            className="px-8 py-3 rounded-full bg-indigo-600 text-white font-medium shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-transform hover:scale-105"
+            className="px-10 py-3 rounded-full
+            bg-gradient-to-r from-purple-400 to-blue-500 
+            text-white font-semibold
+            shadow-[0_0_20px_rgba(139,92,246,0.4)]
+            hover:shadow-[0_0_35px_rgba(139,92,246,0.7)]
+            hover:scale-105 active:scale-95 transition-all"
           >
-            Shop Now
+            Browse New Arrivals
           </Link>
         </div>
       </section>
     </main>
   );
 }
+
