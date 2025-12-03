@@ -126,7 +126,7 @@ export default function ViewOrder() {
   useEffect(() => {
     const subtotalValue = cartItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
-      0
+      0,
     );
     const taxValue = subtotalValue * 0.08;
     const totalValue = subtotalValue + taxValue;
@@ -136,9 +136,11 @@ export default function ViewOrder() {
     setTotalCost(totalValue);
   }, [cartItems]);
 
+  // ------------------------  shipping microservice at Confirm------------------------
   const handleConfirm = async () => {
     if (!paymentInfo || !shippingInfo || cartItems.length === 0) return;
 
+    // 1. First create the order (using existing order microservice)
     const payload: OrderPayload = {
       customerName: shippingInfo.name || paymentInfo.name || "Guest",
       customerEmail: undefined,
@@ -179,6 +181,35 @@ export default function ViewOrder() {
         return;
       }
 
+      // 2. After the order is successfully created, call the shipping microservice to write the shipping info into AWS RDS
+
+      const shippingPayload = {
+        address1: shippingInfo.address1,
+        address2: shippingInfo.address2,
+        city: shippingInfo.city,
+        state: shippingInfo.state,
+        country: "US",
+        postal_code: shippingInfo.zip,
+        email: `${shippingInfo.name || paymentInfo.name || "guest"}@example.com`,
+      };
+
+      try {
+        const shipRes = await fetch("/api/shipping", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(shippingPayload),
+        });
+
+        const shipData = await shipRes.json().catch(() => ({}));
+        if (!shipRes.ok) {
+          console.error("Shipping microservice error:", shipData);
+          // only log the error, without interrupting the user flow
+        }
+      } catch (err) {
+        console.error("Network error when calling shipping microservice:", err);
+      }
+
+      // 3. Save local order summary, clear cart, and navigate to confirmation page
       localStorage.setItem(
         "orderSummary",
         JSON.stringify({
@@ -189,7 +220,7 @@ export default function ViewOrder() {
           tax,
           totalCost,
           orderId: data.orderId,
-        })
+        }),
       );
 
       localStorage.removeItem("cart");
@@ -198,6 +229,7 @@ export default function ViewOrder() {
       alert("Server error.");
     }
   };
+  // ------------------------ Confirm ends ------------------------
 
   const handleBack = () => router.push("/products");
 
@@ -206,12 +238,14 @@ export default function ViewOrder() {
   // --------------------------------------------------------------------------
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0f2c] via-[#10173a] to-[#18224d] p-6 text-white">
-      <div className="
+      <div
+        className="
         w-full max-w-lg rounded-3xl p-8 
         bg-white/10 backdrop-blur-xl 
         border border-white/20 
         shadow-[0_0_40px_rgba(0,150,255,0.25)]
-      ">
+      "
+      >
         <h1 className="text-3xl font-extrabold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-purple-300 drop-shadow-lg">
           Order Summary
         </h1>
@@ -236,17 +270,24 @@ export default function ViewOrder() {
                 >
                   <div>
                     <p className="font-semibold text-white">
-                      {item.name} <span className="text-gray-400 text-xs">(x{item.quantity})</span>
+                      {item.name}{" "}
+                      <span className="text-gray-400 text-xs">
+                        (x{item.quantity})
+                      </span>
                     </p>
                     <p className="text-xs text-gray-400">
-                      ${item.price.toFixed(2)} each — Line: ${(item.price * item.quantity).toFixed(2)}
+                      ${item.price.toFixed(2)} each — Line: $
+                      {(item.price * item.quantity).toFixed(2)}
                     </p>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() =>
-                        updateItemQuantity(item.id, Math.max(1, item.quantity - 1))
+                        updateItemQuantity(
+                          item.id,
+                          Math.max(1, item.quantity - 1),
+                        )
                       }
                       className="px-2 py-1 rounded bg-white/10 text-sm hover:bg-white/20"
                     >
@@ -259,12 +300,17 @@ export default function ViewOrder() {
                       value={item.quantity}
                       className="w-12 bg-white/10 text-center text-sm rounded border border-white/20"
                       onChange={(e) =>
-                        updateItemQuantity(item.id, Math.max(1, Number(e.target.value)))
+                        updateItemQuantity(
+                          item.id,
+                          Math.max(1, Number(e.target.value)),
+                        )
                       }
                     />
 
                     <button
-                      onClick={() => updateItemQuantity(item.id, item.quantity + 1)}
+                      onClick={() =>
+                        updateItemQuantity(item.id, item.quantity + 1)
+                      }
                       className="px-2 py-1 rounded bg-white/10 text-sm hover:bg-white/20"
                     >
                       +
@@ -292,10 +338,16 @@ export default function ViewOrder() {
 
             {paymentInfo && (
               <div className="flex gap-4 text-xs">
-                <button onClick={handleChangePayment} className="text-cyan-300 hover:underline">
+                <button
+                  onClick={handleChangePayment}
+                  className="text-cyan-300 hover:underline"
+                >
                   Change
                 </button>
-                <button onClick={handleDeletePayment} className="text-red-400 hover:underline">
+                <button
+                  onClick={handleDeletePayment}
+                  className="text-red-400 hover:underline"
+                >
                   Delete
                 </button>
               </div>
@@ -327,10 +379,16 @@ export default function ViewOrder() {
 
             {shippingInfo && (
               <div className="flex gap-4 text-xs">
-                <button onClick={handleChangeShipping} className="text-cyan-300 hover:underline">
+                <button
+                  onClick={handleChangeShipping}
+                  className="text-cyan-300 hover:underline"
+                >
                   Change
                 </button>
-                <button onClick={handleDeleteShipping} className="text-red-400 hover:underline">
+                <button
+                  onClick={handleDeleteShipping}
+                  className="text-red-400 hover:underline"
+                >
                   Delete
                 </button>
               </div>
@@ -358,9 +416,7 @@ export default function ViewOrder() {
 
         {/* TOTALS */}
         <section className="mb-8">
-          <h2 className="text-xl font-semibold text-purple-200 mb-3">
-            Total
-          </h2>
+          <h2 className="text-xl font-semibold text-purple-200 mb-3">Total</h2>
 
           <div className="space-y-1 text-gray-200 text-sm">
             <div className="flex justify-between">
