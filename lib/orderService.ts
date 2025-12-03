@@ -130,39 +130,7 @@ async function loadAndValidateItemsFromInventory(
 
 // Payment service (sync)
 
-async function callPayment(
-  amount: number,
-  body: OrderPayload,
-): Promise<{ paymentToken: string }> {
-  const url = process.env.PAYMENT_SERVICE_URL;
-  if (!url) {
-    throw new OrderError("PAYMENT_SERVICE_URL not configured", 500);
-  }
-
-  const p = body.paymentInfo;
-  const res = await fetch(`${url}/payment`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      amount,
-      holderName: p.holderName,
-      cardNum: p.cardNum,
-      expDate: p.expDate,
-      cvv: p.cvv,
-    }),
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new OrderError(`Payment failed: ${text}`, 402);
-  }
-
-  const data = await res.json();
-  if (!data.paymentToken) {
-    throw new OrderError("Payment service did not return paymentToken", 500);
-  }
-  return { paymentToken: data.paymentToken };
-}
+// Payment service (sync) - Removed unused callPayment
 
 // Save order in DB
 async function saveOrderToDb(
@@ -221,7 +189,7 @@ async function saveOrderToDb(
     const orderId = orderRes.rows[0].id;
 
     // 4) line items
-    const vals: any[] = [];
+    const vals: (string | number)[] = [];
     const rows: string[] = [];
     items.forEach((it, i) => {
       const base = i * 4;

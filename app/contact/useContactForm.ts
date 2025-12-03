@@ -17,7 +17,7 @@ type ChangeEvt =
   | React.ChangeEvent<HTMLTextAreaElement>
   | React.ChangeEvent<HTMLSelectElement>;
 
-export default function contactForm() {
+export default function useContactForm() {
   const [form, setForm] = useState<FormState>({
     name: "",
     email: "",

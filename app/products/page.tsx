@@ -30,6 +30,7 @@ export default function Page() {
     (async () => {
       try {
         const data = await listInventory();
+        console.log("Fetched inventory items:", data);
         setItems(data);
       } finally {
         setLoading(false);
@@ -50,13 +51,13 @@ export default function Page() {
 
   const handleAdd = (product: InventoryItem, qty: number) => {
     const id = product.itemNumber.toString();
-  
+
     let updated: CartItem[];
     let totalQty = qty;
-  
+
     setCart((prev) => {
       const existing = prev.find((i) => i.id === id);
-  
+
       if (existing) {
         totalQty = existing.qty + qty;
         updated = prev.map((i) =>
@@ -65,13 +66,13 @@ export default function Page() {
       } else {
         updated = [...prev, { id, qty }];
       }
-  
+
       localStorage.setItem("cart", JSON.stringify(updated));
       return updated;
     });
-  
+
     return totalQty;
-  };  
+  };
 
   if (loading)
     return (
@@ -87,7 +88,7 @@ export default function Page() {
 
   return (
     <main className="min-h-screen px-6 py-10 pt-28 bg-gradient-to-b from-[#0a0f2c] via-[#0f163e] to-[#131a45] text-white">
-      
+
       {/* ---- Page Header ---- */}
       <div className="text-center mb-10">
         <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-purple-400 drop-shadow-lg">
@@ -105,10 +106,10 @@ export default function Page() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {items.map((p) => {
-          
+
           const adapted: Product = {
             id: p.itemNumber.toString(),
-            title: p.name, 
+            title: p.name,
             subtitle: p.description,
             price: p.unitPrice,
             imageSrc: imageMap[p.name] || "/placeholder.png",

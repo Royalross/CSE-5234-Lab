@@ -1,9 +1,9 @@
 "use client";
 
-import contactForm from "@/app/contact/contactForm";
+import useContactForm from "@/app/contact/useContactForm";
 
 export default function ContactPage() {
-  const { form, errors, submitted, handleChange, handleSubmit } = contactForm();
+  const { form, errors, submitted, handleChange, handleSubmit } = useContactForm();
 
   const faqs = [
     {
@@ -51,7 +51,7 @@ export default function ContactPage() {
           <div className="bg-white/10 border border-white/10 rounded-2xl p-6 shadow-xl backdrop-blur hover:shadow-cyan-400/20 transition">
             <h3 className="text-2xl font-bold text-cyan-300 mb-3">Support</h3>
             <p className="text-gray-300 text-sm">
-              Available Monday–Friday  
+              Available Monday–Friday
               <br />9am–6pm ET
             </p>
 
@@ -85,7 +85,7 @@ export default function ContactPage() {
                   Address
                 </p>
                 <p className="leading-relaxed">
-                  500 NovaTech Plaza  
+                  500 NovaTech Plaza
                   <br />Columbus, OH 43210
                 </p>
               </div>
@@ -166,9 +166,8 @@ export default function ContactPage() {
                   placeholder="Jane Doe"
                   value={form.name}
                   onChange={handleChange}
-                  className={`mt-1 w-full rounded-lg bg-white/5 border px-3 py-2 text-white focus:ring-2 focus:ring-cyan-400 ${
-                    errors.name ? "border-red-500" : "border-white/20"
-                  }`}
+                  className={`mt-1 w-full rounded-lg bg-white/5 border px-3 py-2 text-white focus:ring-2 focus:ring-cyan-400 ${errors.name ? "border-red-500" : "border-white/20"
+                    }`}
                 />
                 {errors.name && (
                   <p className="text-red-400 text-xs mt-1">{errors.name}</p>
@@ -185,9 +184,8 @@ export default function ContactPage() {
                   placeholder="jane@example.com"
                   value={form.email}
                   onChange={handleChange}
-                  className={`mt-1 w-full rounded-lg bg-white/5 border px-3 py-2 text-white focus:ring-2 focus:ring-cyan-400 ${
-                    errors.email ? "border-red-500" : "border-white/20"
-                  }`}
+                  className={`mt-1 w-full rounded-lg bg-white/5 border px-3 py-2 text-white focus:ring-2 focus:ring-cyan-400 ${errors.email ? "border-red-500" : "border-white/20"
+                    }`}
                 />
                 {errors.email && (
                   <p className="text-red-400 text-xs mt-1">{errors.email}</p>
@@ -216,9 +214,8 @@ export default function ContactPage() {
                   name="subject"
                   value={form.subject}
                   onChange={handleChange}
-                  className={`mt-1 w-full rounded-lg bg-white/5 border px-3 py-2 text-white focus:ring-2 focus:ring-cyan-400 ${
-                    errors.subject ? "border-red-500" : "border-white/20"
-                  }`}
+                  className={`mt-1 w-full rounded-lg bg-white/5 border px-3 py-2 text-white focus:ring-2 focus:ring-cyan-400 ${errors.subject ? "border-red-500" : "border-white/20"
+                    }`}
                 >
                   <option value="" disabled>
                     Choose a topic…
@@ -240,9 +237,8 @@ export default function ContactPage() {
                   value={form.message}
                   onChange={handleChange}
                   placeholder="Tell us how we can help…"
-                  className={`mt-1 w-full rounded-lg bg-white/5 border px-3 py-2 text-white focus:ring-2 focus:ring-cyan-400 ${
-                    errors.message ? "border-red-500" : "border-white/20"
-                  }`}
+                  className={`mt-1 w-full rounded-lg bg-white/5 border px-3 py-2 text-white focus:ring-2 focus:ring-cyan-400 ${errors.message ? "border-red-500" : "border-white/20"
+                    }`}
                 />
               </div>
 

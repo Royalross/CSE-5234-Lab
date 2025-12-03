@@ -112,14 +112,14 @@ export default function ViewOrder() {
     if (savedPayment) {
       try {
         setPaymentInfo(JSON.parse(savedPayment));
-      } catch {}
+      } catch { }
     }
 
     const savedShipping = localStorage.getItem("shippingInfo");
     if (savedShipping) {
       try {
         setShippingInfo(JSON.parse(savedShipping));
-      } catch {}
+      } catch { }
     }
   }, []);
 
@@ -225,7 +225,7 @@ export default function ViewOrder() {
 
       localStorage.removeItem("cart");
       router.push("/purchase/viewConfirmation");
-    } catch (e) {
+    } catch {
       alert("Server error.");
     }
   };
@@ -454,10 +454,9 @@ export default function ViewOrder() {
             disabled={cartItems.length === 0 || !paymentInfo || !shippingInfo}
             className={`
               w-1/2 py-2 rounded-lg text-white font-semibold transition-all
-              ${
-                cartItems.length === 0 || !paymentInfo || !shippingInfo
-                  ? "opacity-50 cursor-not-allowed bg-gray-500"
-                  : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-xl"
+              ${cartItems.length === 0 || !paymentInfo || !shippingInfo
+                ? "opacity-50 cursor-not-allowed bg-gray-500"
+                : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-xl"
               }
             `}
           >
